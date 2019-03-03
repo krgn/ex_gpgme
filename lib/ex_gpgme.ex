@@ -5,6 +5,6 @@ defmodule ExGpgme.Bindings do
 
   use Rustler, otp_app: :ex_gpgme, crate: "gpgme_bindings"
 
-  # When your NIF is loaded, it will override this function.
-  def list_keys, do: :erlang.nif_error(:nif_not_loaded)
+  def list_keys(_ctx), do: :erlang.nif_error(:nif_not_loaded)
+  def create_context, do: :erlang.nif_error(:nif_not_loaded)
 end

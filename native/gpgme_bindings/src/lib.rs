@@ -7,30 +7,57 @@ extern crate lazy_static;
 extern crate gpgme;
 
 use gpgme::{Context, KeyListMode, Protocol};
+use rustler::resource::ResourceArc;
 use rustler::{Encoder, Env, NifResult, Term};
+use std::sync::Mutex;
 
 mod atoms {
     rustler_atoms! {
         atom ok;
-        //atom error;
+        atom error;
         //atom __true__ = "true";
         //atom __false__ = "false";
     }
 }
 
+mod proto {
+    rustler_atoms! {
+        atom openpgp;
+    }
+}
+
 rustler_export_nifs! {
     "Elixir.ExGpgme.Bindings",
-    [("list_keys", 0, list_keys)],
-    None
+    [("list_keys", 1, list_keys),
+     ("create_context", 0, create_context)],
+    Some(on_load)
+}
+
+pub(crate) struct GpgmeContext(Mutex<Context>);
+
+unsafe impl Send for GpgmeContext {}
+unsafe impl Sync for GpgmeContext {}
+
+pub fn on_load<'a>(env: Env<'a>, _: Term<'a>) -> bool {
+    resource_struct_init!(GpgmeContext, env);
+    true
+}
+
+fn create_context<'a>(env: Env<'a>, _args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let proto = Protocol::OpenPgp;
+    let ctx = Context::from_protocol(proto).expect("context");
+    let resource = ResourceArc::new(GpgmeContext(Mutex::new(ctx)));
+
+    Ok((atoms::ok(), resource).encode(env))
 }
 
 fn list_keys<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
-    let proto = Protocol::OpenPgp;
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let mut ctx = res.0.lock().unwrap();
 
     let mut mode = KeyListMode::empty();
     mode.insert(KeyListMode::LOCAL);
 
-    let mut ctx = Context::from_protocol(proto).expect("context");
     let mut key_list = vec![];
 
     ctx.set_key_list_mode(mode).expect("key list mode");
@@ -59,7 +86,7 @@ fn list_keys<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
 
         let mut users = vec![];
 
-        for (i, user) in key.user_ids().enumerate() {
+        for (_i, user) in key.user_ids().enumerate() {
             let mut user_map = Term::map_new(env);
             user_map = user_map.map_put(
                 "userid".encode(env),
