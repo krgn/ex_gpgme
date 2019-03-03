@@ -6,5 +6,6 @@ defmodule ExGpgme.Bindings do
   use Rustler, otp_app: :ex_gpgme, crate: "gpgme_bindings"
 
   def list_keys(_ctx), do: :erlang.nif_error(:nif_not_loaded)
+  def key_id(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
   def create_context, do: :erlang.nif_error(:nif_not_loaded)
 end

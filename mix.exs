@@ -8,7 +8,9 @@ defmodule ExGpgme.MixProject do
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       compilers: [:rustler] ++ Mix.compilers(),
+      elixirc_paths: elixirc_paths(Mix.env()),
       rustler_crates: rustler_crates(),
+      aliases: aliases(),
       deps: deps()
     ]
   end
@@ -19,6 +21,9 @@ defmodule ExGpgme.MixProject do
       extra_applications: [:logger]
     ]
   end
+
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
+  defp elixirc_paths(_), do: ["lib"]
 
   defp rustler_crates do
     [
@@ -32,6 +37,12 @@ defmodule ExGpgme.MixProject do
   defp deps do
     [
       {:rustler, "~> 0.19.1"}
+    ]
+  end
+
+  def aliases do
+    [
+      test: "test --trace"
     ]
   end
 end
