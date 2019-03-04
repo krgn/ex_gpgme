@@ -15,14 +15,16 @@ use key::GpgmeKey;
 use rustler::{Env, Term};
 
 rustler_export_nifs! {
-    "Elixir.ExGpgme.Bindings",
+    "Elixir.ExGpgme.Native",
     [("list_keys", 1, key::list),
      ("key_id", 1, key::key_id),
-     ("create_context", 0, context::create)],
+     ("context_create", 1, context::create),
+     ("context_info", 1, context::info)],
     Some(on_load)
 }
 
-pub fn on_load<'a>(env: Env<'a>, _: Term<'a>) -> bool {
+pub fn on_load<'a>(env: Env<'a>, args: Term<'a>) -> bool {
+    println!("Loading ex_gpgme with args: {:?}", args);
     resource_struct_init!(GpgmeContext, env);
     resource_struct_init!(GpgmeKey, env);
     true

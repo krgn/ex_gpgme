@@ -13,13 +13,15 @@ defmodule Test.GpgmeCase do
   end
 
   setup _tags do
-    setup_agent()
-    {:ok, data: :foo}
+    {agent, dir} = setup_agent()
+    on_exit(fn -> kill_agent(agent, dir) end)
+
+    {:ok, gnupg_home: dir}
   end
 
   def setup_agent do
     dir = tmp_dir!()
-    pinentry = System.find_executable("/run/current-system/sw/bin/pinentry")
+    pinentry = System.find_executable("pinentry")
     conf = agent_conf(dir, pinentry)
 
     :ok =
@@ -38,9 +40,7 @@ defmodule Test.GpgmeCase do
     :ok = import_key("test/data/public.asc")
     :ok = import_key("test/data/private.asc")
 
-    :timer.sleep(5_000)
-
-    kill_agent(agent, dir)
+    {agent, dir}
   end
 
   def start_agent(dir) do
@@ -73,6 +73,8 @@ defmodule Test.GpgmeCase do
         %Result{status: 0} = Porcelain.exec("kill", [pid])
       end
     end)
+
+    File.rm_rf!(dir)
   end
 
   def matches?(pid, dir) do
@@ -87,7 +89,7 @@ defmodule Test.GpgmeCase do
     passphrase = Application.get_env(:ex_gpgme, :test_passphrase)
     key_path = Path.expand(key_path)
     cmd = "echo #{passphrase} | #{gpg} --batch --yes --passphrase-fd 0 --import #{key_path}"
-    %Result{status: 0} = Porcelain.shell(cmd)
+    %Result{status: 0, out: _out} = Porcelain.shell(cmd)
     :ok
   end
 
@@ -107,6 +109,7 @@ defmodule Test.GpgmeCase do
       |> Path.join("tmp.ex_gpgme-#{rand_string()}")
 
     :ok = File.mkdir_p!(path)
+    %Result{status: 0} = Porcelain.exec("chmod", ["-R", "700", "#{path}"])
     path
   end
 
