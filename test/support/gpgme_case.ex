@@ -1,6 +1,11 @@
 defmodule Test.GpgmeCase do
   use ExUnit.CaseTemplate
 
+  require Logger
+
+  alias Porcelain.Result
+  alias Porcelain.Process
+
   using do
     quote do
       # compile time setup
@@ -8,20 +13,14 @@ defmodule Test.GpgmeCase do
   end
 
   setup _tags do
-    # runtime setup
+    setup_agent()
     {:ok, data: :foo}
   end
 
-  #             _            _
-  #  _ __  _ __(_)_   ____ _| |_ ___
-  # | '_ \| '__| \ \ / / _` | __/ _ \
-  # | |_) | |  | |\ V / (_| | ||  __/
-  # | .__/|_|  |_| \_/ \__,_|\__\___|
-  # |_|
-
   def setup_agent do
-    _dir = tmp_dir!()
-    dir = "/home/k/gpgme/home"
+    dir = tmp_dir!()
+    pinentry = System.find_executable("/run/current-system/sw/bin/pinentry")
+    conf = agent_conf(dir, pinentry)
 
     :ok =
       System.put_env([
@@ -32,35 +31,68 @@ defmodule Test.GpgmeCase do
     :ok =
       dir
       |> Path.join("gpg-agent.conf")
-      |> File.write!(agent_conf("pinentry"))
+      |> File.write!(conf)
 
-    :ok = import_key("test/data/private.asc")
+    agent = start_agent(dir)
+
     :ok = import_key("test/data/public.asc")
+    :ok = import_key("test/data/private.asc")
+
+    :timer.sleep(5_000)
+
+    kill_agent(agent, dir)
+  end
+
+  def start_agent(dir) do
+    Logger.debug("Starting test gpg-agent")
+
+    proc =
+      Porcelain.spawn_shell("gpg-agent --homedir #{dir} --server",
+        in: :receive,
+        out: {:send, self()}
+      )
+
+    receive do
+      {_pid, :data, :out, "OK" <> _rest} -> Logger.debug("Ok")
+    end
+
+    proc
+  end
+
+  def kill_agent(proc, dir) do
+    Logger.debug("Stopping gpg-agent")
+    true = Process.stop(proc)
+
+    %Result{out: out} = Porcelain.exec("pidof", ["gpg-agent"])
+
+    out
+    |> String.trim()
+    |> String.split()
+    |> Enum.each(fn pid ->
+      if matches?(pid, dir) do
+        %Result{status: 0} = Porcelain.exec("kill", [pid])
+      end
+    end)
+  end
+
+  def matches?(pid, dir) do
+    case File.read("/proc/#{pid}/environ") do
+      {:ok, data} -> String.contains?(data, dir)
+      _ -> true
+    end
   end
 
   def import_key(key_path) do
     gpg = System.get_env("GPG") || "gpg"
-
-    data =
-      key_path
-      |> Path.expand()
-      |> File.read!()
-
     passphrase = Application.get_env(:ex_gpgme, :test_passphrase)
-
-    port =
-      Port.open(
-        {:spawn, "#{gpg} --no-permission-warning --passphrase #{passphrase} --import"},
-        []
-      )
-
-    true = Port.command(port, "#{data}\n")
-    true = Port.close(port)
+    key_path = Path.expand(key_path)
+    cmd = "echo #{passphrase} | #{gpg} --batch --yes --passphrase-fd 0 --import #{key_path}"
+    %Result{status: 0} = Porcelain.shell(cmd)
     :ok
   end
 
-  def agent_conf(pinentry) do
-    ~s"""
+  def agent_conf(_dir, pinentry) do
+    """
     ignore-invalid-option allow-loopback-pinentry
     allow-loopback-pinentry
     ignore-invalid-option pinentry-mode
@@ -69,7 +101,7 @@ defmodule Test.GpgmeCase do
     """
   end
 
-  defp tmp_dir! do
+  def tmp_dir! do
     path =
       System.tmp_dir!()
       |> Path.join("tmp.ex_gpgme-#{rand_string()}")
@@ -77,6 +109,13 @@ defmodule Test.GpgmeCase do
     :ok = File.mkdir_p!(path)
     path
   end
+
+  #             _            _
+  #  _ __  _ __(_)_   ____ _| |_ ___
+  # | '_ \| '__| \ \ / / _` | __/ _ \
+  # | |_) | |  | |\ V / (_| | ||  __/
+  # | .__/|_|  |_| \_/ \__,_|\__\___|
+  # |_|
 
   defp rand_string do
     :sha256
