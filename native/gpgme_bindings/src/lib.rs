@@ -16,7 +16,7 @@ use rustler::{Env, Term};
 
 rustler_export_nifs! {
     "Elixir.ExGpgme.Native",
-    [("list_keys", 1, key::list),
+    [("key_list", 1, key::list),
      ("key_id", 1, key::key_id),
      ("context_create", 1, context::create),
      ("context_info", 1, context::info)],

@@ -39,7 +39,7 @@ defmodule ExGpgme.Bindings.Test do
   describe "Keys" do
     test "should list keys", ctx do
       {:ok, context} = ExGpgme.Native.context_create(ctx[:gnupg_home])
-      {:ok, keys} = ExGpgme.Native.list_keys(context)
+      {:ok, keys} = ExGpgme.Native.key_list(context)
       assert length(keys) == 1
     end
   end

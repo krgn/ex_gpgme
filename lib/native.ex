@@ -8,7 +8,7 @@ defmodule ExGpgme.Native do
     # load_data: Application.get_env(:ex_gpgme, :gnupg_home, System.get_env("GNUPGHOME")),
     crate: "gpgme_bindings"
 
-  def list_keys(_ctx), do: :erlang.nif_error(:nif_not_loaded)
+  def key_list(_ctx), do: :erlang.nif_error(:nif_not_loaded)
   def key_id(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
 
   def context_create(_path), do: :erlang.nif_error(:nif_not_loaded)
