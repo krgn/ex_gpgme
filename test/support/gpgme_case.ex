@@ -89,7 +89,10 @@ defmodule Test.GpgmeCase do
     passphrase = Application.get_env(:ex_gpgme, :test_passphrase)
     key_path = Path.expand(key_path)
 
-    cmd = "echo #{passphrase} | #{gpg} --batch --yes --passphrase-fd 0 --import #{key_path}"
+    cmd =
+      "echo #{passphrase} | #{gpg} --batch --yes --passphrase-fd 0 --trust-model always --import #{
+        key_path
+      }"
 
     %Result{status: 0, out: _out, err: _err} = Porcelain.shell(cmd)
     :ok

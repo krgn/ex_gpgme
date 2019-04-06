@@ -87,7 +87,6 @@ defmodule ExGpgme.Bindings.Test do
       assert length(result.imports) == 0
     end
 
-    @tag :focus
     test "should import private key", ctx do
       {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
       {:ok, info} = ExGpgme.Native.context_info(context)
@@ -119,6 +118,17 @@ defmodule ExGpgme.Bindings.Test do
 
       {:ok, keys} = ExGpgme.Native.key_list(context)
       assert length(keys) == 2
+    end
+
+    test "should encrypt", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, info} = ExGpgme.Native.context_info(context)
+      data = "hello this is my message"
+
+      {:ok, cipher} =
+        ExGpgme.Native.context_encrypt(context, "D1DBB4E18FF6FA6AFA040B07728052F947BD30B8", data)
+
+      assert String.starts_with?(cipher, "-----BEGIN PGP MESSAGE-----")
     end
   end
 

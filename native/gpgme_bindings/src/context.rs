@@ -1,5 +1,6 @@
 use atoms;
 use gpgme::{Context, PinentryMode, Protocol};
+use key::GpgmeKey;
 use rustler::resource::ResourceArc;
 use rustler::{Encoder, Env, NifResult, Term};
 use std::sync::Mutex;
@@ -28,6 +29,9 @@ mod keys {
 fn create_wrapped(proto: Protocol, path: &str) -> Result<GpgmeContext, rustler::Error> {
     match Context::from_protocol(proto) {
         Ok(mut ctx) => {
+            ctx.set_armor(true);
+            ctx.set_text_mode(true);
+
             ctx.set_pinentry_mode(PinentryMode::Loopback)
                 .expect("could not set pinentry mode");
             ctx.set_engine_home_dir(path)
@@ -199,4 +203,23 @@ pub fn import<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
         Ok(result) => import_result::from(env, result),
         Err(_err) => Err(rustler::Error::Atom("error")),
     }
+}
+
+pub fn encrypt<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let fingerprint: String = args[1].decode()?;
+    let data: String = args[2].decode()?;
+    let mut context = res.0.lock().unwrap();
+    let key = context.get_key(&fingerprint).unwrap();
+    let mut encrypted = Vec::new();
+    context
+        .encrypt_with_flags(
+            Some(&key),
+            data,
+            &mut encrypted,
+            gpgme::EncryptFlags::ALWAYS_TRUST,
+        )
+        .unwrap();
+    let ascii = String::from_utf8(encrypted).unwrap().encode(env);
+    Ok((atoms::ok(), ascii).encode(env))
 }

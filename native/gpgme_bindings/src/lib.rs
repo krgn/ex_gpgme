@@ -33,6 +33,7 @@ rustler_export_nifs! {
      ("key_is_qualified", 1, key::key_is_qualified),
      ("context_create", 2, context::create),
      ("context_import", 2, context::import),
+     ("context_encrypt", 3, context::encrypt),
      ("context_info", 1, context::info)],
     Some(on_load)
 }
