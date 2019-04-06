@@ -83,12 +83,26 @@ defmodule ExGpgme.Bindings.Test do
       assert can_encrypt
     end
 
-    @tag :focus
     test "should return can_sign", ctx do
       {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
       {:ok, [key]} = ExGpgme.Native.key_list(context)
       {:ok, can_sign} = ExGpgme.Native.key_can_sign(key)
       assert can_sign
+    end
+
+    test "should return can_certify", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, can_certify} = ExGpgme.Native.key_can_certify(key)
+      assert can_certify
+    end
+
+    @tag :focus
+    test "should return can_authenticate", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, can_authenticate} = ExGpgme.Native.key_can_authenticate(key)
+      assert !can_authenticate
     end
   end
 

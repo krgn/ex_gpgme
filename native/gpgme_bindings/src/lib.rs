@@ -23,6 +23,8 @@ rustler_export_nifs! {
      ("key_fingerprint", 1, key::key_fingerprint),
      ("key_can_encrypt", 1, key::key_can_encrypt),
      ("key_can_sign", 1, key::key_can_sign),
+     ("key_can_certify", 1, key::key_can_certify),
+     ("key_can_authenticate", 1, key::key_can_authenticate),
      ("context_create", 2, context::create),
      ("context_info", 1, context::info)],
     Some(on_load)
