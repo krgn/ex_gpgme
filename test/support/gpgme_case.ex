@@ -37,8 +37,8 @@ defmodule Test.GpgmeCase do
 
     agent = start_agent(dir)
 
-    :ok = import_key("test/data/public.asc")
-    :ok = import_key("test/data/private.asc")
+    :ok = import_key("test/data/foo_mcbar/public.asc")
+    :ok = import_key("test/data/foo_mcbar/private.asc")
 
     {agent, dir}
   end
@@ -85,11 +85,13 @@ defmodule Test.GpgmeCase do
   end
 
   def import_key(key_path) do
-    gpg = System.get_env("GPG") || "gpg"
+    gpg = System.get_env("GPG") || System.find_executable("gpg")
     passphrase = Application.get_env(:ex_gpgme, :test_passphrase)
     key_path = Path.expand(key_path)
+
     cmd = "echo #{passphrase} | #{gpg} --batch --yes --passphrase-fd 0 --import #{key_path}"
-    %Result{status: 0, out: _out} = Porcelain.shell(cmd)
+
+    %Result{status: 0, out: _out, err: _err} = Porcelain.shell(cmd)
     :ok
   end
 

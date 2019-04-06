@@ -46,6 +46,27 @@ defmodule ExGpgme.Bindings.Test do
       {:ok, keys} = ExGpgme.Native.key_list(context)
       assert length(keys) == 1
     end
+
+    test "should return correct key_id", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, "728052F947BD30B8"} = ExGpgme.Native.key_id(key)
+    end
+
+    test "should list of user ids", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, [user] = user_ids} = ExGpgme.Native.key_user_ids(key)
+      assert is_list(user_ids)
+      assert user.name == "Foo McBar"
+      assert user.email == "foo@mcbar.dev"
+      assert user.comment == ""
+      assert user.validity == :unknown
+      assert user.origin == :unknown
+      assert user.revoked == false
+      assert user.invalid == false
+      assert is_list(user.signatures)
+    end
   end
 
   #   test "should import key"

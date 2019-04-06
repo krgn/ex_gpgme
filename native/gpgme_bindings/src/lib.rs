@@ -19,6 +19,7 @@ rustler_export_nifs! {
     "Elixir.ExGpgme.Native",
     [("key_list", 1, key::list),
      ("key_id", 1, key::key_id),
+     ("key_user_ids", 1, key::key_user_ids),
      ("context_create", 2, context::create),
      ("context_info", 1, context::info)],
     Some(on_load)
