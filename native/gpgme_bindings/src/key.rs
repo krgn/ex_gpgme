@@ -88,12 +88,7 @@ pub fn list<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let mut keys = ctx.keys().expect("keys");
 
     for key in keys.by_ref().filter_map(|x| x.ok()) {
-        for user in key.user_ids() {
-            println!("numkeys: {:?}", user.id());
-        }
-
         let key_ref = ResourceArc::new(GpgmeKey(key));
-
         key_list.push(key_ref)
     }
 

@@ -67,7 +67,6 @@ defmodule ExGpgme.Bindings.Test do
       assert length(keys) == 2
     end
 
-    @tag :focus
     test "should not import trash", ctx do
       {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
       {:ok, info} = ExGpgme.Native.context_info(context)
@@ -86,6 +85,40 @@ defmodule ExGpgme.Bindings.Test do
       assert result.secret_unchanged == 0
       assert result.not_imported == 0
       assert length(result.imports) == 0
+    end
+
+    @tag :focus
+    test "should import private key", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, info} = ExGpgme.Native.context_info(context)
+      data = File.read!("test/data/boaty_mcboatface/private.asc")
+      {:ok, result} = ExGpgme.Native.context_import(context, data)
+
+      assert result.without_user_id == 0
+      assert result.new_user_ids == 0
+      assert result.new_subkeys == 0
+      assert result.new_revocations == 0
+      assert result.considered == 1
+      assert result.imported == 1
+      assert result.unchanged == 0
+      assert result.secret_considered == 1
+      assert result.secret_imported == 1
+      assert result.secret_unchanged == 0
+      assert result.not_imported == 0
+
+      assert is_list(result.imports)
+      [public, secret] = result.imports
+
+      assert public.fingerprint == "BB6700D8CFF4EDA5E6E233093722D688D77C1C10"
+      assert public.result == :ok
+      assert public.status == "NEW"
+
+      assert secret.fingerprint == "BB6700D8CFF4EDA5E6E233093722D688D77C1C10"
+      assert secret.result == :ok
+      assert secret.status == "NEW | SECRET"
+
+      {:ok, keys} = ExGpgme.Native.key_list(context)
+      assert length(keys) == 2
     end
   end
 

@@ -1,5 +1,5 @@
 use atoms;
-use gpgme::{Context, Protocol};
+use gpgme::{Context, PinentryMode, Protocol};
 use rustler::resource::ResourceArc;
 use rustler::{Encoder, Env, NifResult, Term};
 use std::sync::Mutex;
@@ -28,6 +28,8 @@ mod keys {
 fn create_wrapped(proto: Protocol, path: &str) -> Result<GpgmeContext, rustler::Error> {
     match Context::from_protocol(proto) {
         Ok(mut ctx) => {
+            ctx.set_pinentry_mode(PinentryMode::Loopback)
+                .expect("could not set pinentry mode");
             ctx.set_engine_home_dir(path)
                 .expect("Fatal: could not set home dir");
             Ok(ctx.into())
