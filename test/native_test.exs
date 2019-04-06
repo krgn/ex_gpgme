@@ -140,7 +140,6 @@ defmodule ExGpgme.Bindings.Test do
       assert !is_invalid
     end
 
-    @tag :focus
     test "should return is_qualified", ctx do
       {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
       {:ok, [key]} = ExGpgme.Native.key_list(context)
