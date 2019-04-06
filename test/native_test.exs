@@ -137,7 +137,15 @@ defmodule ExGpgme.Bindings.Test do
     test "should decrypt", ctx do
       {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
 
-      data = "hello this is my message"
+      data = """
+      Hello Foo,
+
+      This is Bar. I hope you're doing well.
+
+      So long,
+
+      Bar
+      """
 
       {:ok, cipher_text} =
         ExGpgme.Native.context_encrypt(
@@ -158,7 +166,9 @@ defmodule ExGpgme.Bindings.Test do
       assert data == decrypted
     end
 
+    # test "should encrypt (symmetric)"
     # test "should decrypt (symmetric)"
+
     # test "should sign key"
     # test "should verify"
   end
