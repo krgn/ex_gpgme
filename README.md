@@ -1,6 +1,8 @@
 # ExGpgme
 
-**TODO: Add description**
+Simple wrapper around `gpgme` for Elixir/Erlang.
+
+*Note*: this is a work in progress, do not use.
 
 ## Installation
 
