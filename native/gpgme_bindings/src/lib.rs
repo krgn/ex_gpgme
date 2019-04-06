@@ -9,6 +9,7 @@ extern crate gpgme;
 mod atoms;
 mod context;
 mod key;
+mod protocol;
 
 use context::GpgmeContext;
 use key::GpgmeKey;
@@ -18,7 +19,7 @@ rustler_export_nifs! {
     "Elixir.ExGpgme.Native",
     [("key_list", 1, key::list),
      ("key_id", 1, key::key_id),
-     ("context_create", 1, context::create),
+     ("context_create", 2, context::create),
      ("context_info", 1, context::info)],
     Some(on_load)
 }

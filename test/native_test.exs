@@ -5,8 +5,12 @@ defmodule ExGpgme.Bindings.Test do
 
   describe "Context" do
     test "should create successfully", ctx do
-      {:ok, context} = ExGpgme.Native.context_create(ctx[:gnupg_home])
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
       assert is_reference(context)
+    end
+
+    test "should fail on unsupported protocol", ctx do
+      :unsupported_protocol = ExGpgme.Native.context_create(:foobar, ctx[:gnupg_home])
     end
 
     test "should allow creating multiple contexts " do
@@ -16,7 +20,7 @@ defmodule ExGpgme.Bindings.Test do
       ]
 
       Enum.map(setups, fn {_agent, dir} ->
-        {:ok, context} = ExGpgme.Native.context_create(dir)
+        {:ok, context} = ExGpgme.Native.context_create(:openpgp, dir)
         assert is_reference(context)
       end)
 
@@ -27,7 +31,7 @@ defmodule ExGpgme.Bindings.Test do
     end
 
     test "should return correct info", ctx do
-      {:ok, context} = ExGpgme.Native.context_create(ctx[:gnupg_home])
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
       {:ok, info} = ExGpgme.Native.context_info(context)
       assert info.home == ctx[:gnupg_home]
       assert info.path == System.find_executable("gpg")
@@ -38,7 +42,7 @@ defmodule ExGpgme.Bindings.Test do
 
   describe "Keys" do
     test "should list keys", ctx do
-      {:ok, context} = ExGpgme.Native.context_create(ctx[:gnupg_home])
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
       {:ok, keys} = ExGpgme.Native.key_list(context)
       assert length(keys) == 1
     end

@@ -24,10 +24,7 @@ mod keys {
     }
 }
 
-fn create_wrapped(path: &str) -> Result<GpgmeContext, rustler::Error> {
-    // std::env::set_var("GNUPGHOME", path);
-    let proto = Protocol::OpenPgp;
-
+fn create_wrapped(proto: Protocol, path: &str) -> Result<GpgmeContext, rustler::Error> {
     match Context::from_protocol(proto) {
         Ok(mut ctx) => {
             ctx.set_engine_home_dir(path)
@@ -40,8 +37,9 @@ fn create_wrapped(path: &str) -> Result<GpgmeContext, rustler::Error> {
 
 /// Create a new Ggpme Context and return it to erlang as a reference.
 pub fn create<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
-    let path: String = args[0].decode()?;
-    let context = create_wrapped(&path)?;
+    let proto: Protocol = crate::protocol::from_term(args[0])?;
+    let path: String = args[1].decode()?;
+    let context = create_wrapped(proto, &path)?;
     let resource = ResourceArc::new(context);
     Ok((crate::atoms::ok(), resource).encode(env))
 }
