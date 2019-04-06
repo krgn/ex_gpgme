@@ -20,6 +20,7 @@ rustler_export_nifs! {
     [("key_list", 1, key::list),
      ("key_id", 1, key::key_id),
      ("key_user_ids", 1, key::key_user_ids),
+     ("key_fingerprint", 1, key::key_fingerprint),
      ("context_create", 2, context::create),
      ("context_info", 1, context::info)],
     Some(on_load)

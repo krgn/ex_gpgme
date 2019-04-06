@@ -105,6 +105,16 @@ pub fn key_id<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     Ok((atoms::ok(), res.0.id().unwrap_or("?")).encode(env))
 }
 
+pub fn key_fingerprint<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let key: ResourceArc<GpgmeKey> = args[0].decode()?;
+    let fingerprint = key
+        .0
+        .fingerprint()
+        .map(|f| f.encode(env))
+        .unwrap_or(atoms::none().encode(env));
+    Ok((atoms::ok(), fingerprint).encode(env))
+}
+
 pub fn key_user_ids<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let key: ResourceArc<GpgmeKey> = args[0].decode()?;
     let mut list: Vec<Term<'a>> = Vec::new();

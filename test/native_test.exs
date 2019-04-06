@@ -58,6 +58,7 @@ defmodule ExGpgme.Bindings.Test do
       {:ok, [key]} = ExGpgme.Native.key_list(context)
       {:ok, [user] = user_ids} = ExGpgme.Native.key_user_ids(key)
       assert is_list(user_ids)
+      assert is_map(user)
       assert user.name == "Foo McBar"
       assert user.email == "foo@mcbar.dev"
       assert user.comment == ""
@@ -66,6 +67,13 @@ defmodule ExGpgme.Bindings.Test do
       assert user.revoked == false
       assert user.invalid == false
       assert is_list(user.signatures)
+    end
+
+    test "should return fingerprint", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, fingerprint} = ExGpgme.Native.key_fingerprint(key)
+      assert fingerprint == "D1DBB4E18FF6FA6AFA040B07728052F947BD30B8"
     end
   end
 
