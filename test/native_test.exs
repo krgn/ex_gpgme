@@ -26,7 +26,6 @@ defmodule ExGpgme.Bindings.Test do
 
       Enum.each(setups, fn {agent, dir} ->
         Test.GpgmeCase.kill_agent(agent, dir)
-        |> IO.inspect(label: "RESULT")
       end)
     end
 
@@ -35,6 +34,7 @@ defmodule ExGpgme.Bindings.Test do
       {:ok, info} = ExGpgme.Native.context_info(context)
       assert info.home == ctx[:gnupg_home]
       assert info.path == System.find_executable("gpg")
+      assert info.protocol == :openpgp
       assert is_binary(info.version)
       assert is_binary(info.required_version)
     end

@@ -14,7 +14,7 @@ pub fn from_term<'a>(term: Term<'a>) -> NifResult<Protocol> {
     }
 }
 
-pub fn as_atom(protocol: Protocol) -> types::atom::Atom {
+pub fn as_term(protocol: Protocol) -> types::atom::Atom {
     match protocol {
         Protocol::OpenPgp => openpgp(),
         _ => unsupported_protocol(),

@@ -48,7 +48,6 @@ pub fn info<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let res: ResourceArc<GpgmeContext> = args[0].decode()?;
     let context = res.0.lock().unwrap();
     let info = context.engine_info();
-    println!("info: {:?}", info);
 
     let mut map = Term::map_new(env);
 
@@ -62,6 +61,11 @@ pub fn info<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     map = map.map_put(
         keys::version().encode(env),
         info.version().unwrap().encode(env),
+    )?;
+
+    map = map.map_put(
+        keys::protocol().encode(env),
+        crate::protocol::as_term(info.protocol()).encode(env),
     )?;
 
     map = map.map_put(
