@@ -3,6 +3,7 @@ use gpgme::{Context, PinentryMode, Protocol};
 use key::GpgmeKey;
 use rustler::resource::ResourceArc;
 use rustler::{Encoder, Env, NifResult, Term};
+use std::io::prelude::*;
 use std::sync::Mutex;
 
 pub(crate) struct GpgmeContext(pub Mutex<Context>);
@@ -222,4 +223,25 @@ pub fn encrypt<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
         .unwrap();
     let ascii = String::from_utf8(encrypted).unwrap().encode(env);
     Ok((atoms::ok(), ascii).encode(env))
+}
+
+pub fn decrypt<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let passphrase_str: String = args[1].decode()?;
+    let ciphertext_str: String = args[2].decode()?;
+    let passphrase: &[u8] = passphrase_str.as_bytes();
+    let ciphertext: &[u8] = ciphertext_str.as_bytes();
+    let mut context = res.0.lock().unwrap();
+    let mut plaintext = Vec::new();
+    context.with_passphrase_provider(
+        |_req: gpgme::PassphraseRequest, out: &mut Write| match out.write_all(passphrase) {
+            Ok(()) => Ok(()),
+            Err(_) => Err(gpgme::Error::from_code(32)),
+        },
+        |ctx| {
+            ctx.decrypt(ciphertext, &mut plaintext).unwrap();
+        },
+    );
+    let binary = String::from_utf8(plaintext).unwrap().encode(env);
+    Ok((atoms::ok(), binary).encode(env))
 }

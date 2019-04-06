@@ -130,6 +130,28 @@ defmodule ExGpgme.Bindings.Test do
 
       assert String.starts_with?(cipher, "-----BEGIN PGP MESSAGE-----")
     end
+
+    test "should decrypt", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, info} = ExGpgme.Native.context_info(context)
+      data = "hello this is my message"
+
+      {:ok, cipher_text} =
+        ExGpgme.Native.context_encrypt(
+          context,
+          "D1DBB4E18FF6FA6AFA040B07728052F947BD30B8",
+          data
+        )
+
+      {:ok, decrypted} =
+        ExGpgme.Native.context_decrypt(
+          context,
+          "6c616829565def2c",
+          cipher_text
+        )
+
+      assert data == decrypted
+    end
   end
 
   describe "Keys" do
