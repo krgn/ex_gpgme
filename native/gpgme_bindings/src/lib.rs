@@ -21,6 +21,7 @@ rustler_export_nifs! {
      ("key_id", 1, key::key_id),
      ("key_user_ids", 1, key::key_user_ids),
      ("key_fingerprint", 1, key::key_fingerprint),
+     ("key_can_encrypt", 1, key::key_can_encrypt),
      ("context_create", 2, context::create),
      ("context_info", 1, context::info)],
     Some(on_load)

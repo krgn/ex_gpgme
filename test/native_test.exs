@@ -75,6 +75,14 @@ defmodule ExGpgme.Bindings.Test do
       {:ok, fingerprint} = ExGpgme.Native.key_fingerprint(key)
       assert fingerprint == "D1DBB4E18FF6FA6AFA040B07728052F947BD30B8"
     end
+
+    @tag :focus
+    test "should return can_encrypt", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, can_encrypt} = ExGpgme.Native.key_can_encrypt(key)
+      assert can_encrypt
+    end
   end
 
   #   test "should import key"
