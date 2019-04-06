@@ -13,6 +13,7 @@ defmodule ExGpgme.Native do
   def key_user_ids(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
   def key_fingerprint(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
   def key_can_encrypt(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
+  def key_can_sign(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
 
   def context_create(_protocol, _path), do: :erlang.nif_error(:nif_not_loaded)
   def context_info(_ctx), do: :erlang.nif_error(:nif_not_loaded)

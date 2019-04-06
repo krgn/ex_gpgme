@@ -121,6 +121,12 @@ pub fn key_can_encrypt<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a
     Ok((atoms::ok(), can_encrypt).encode(env))
 }
 
+pub fn key_can_sign<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let key: ResourceArc<GpgmeKey> = args[0].decode()?;
+    let can_sign = key.0.can_sign().encode(env);
+    Ok((atoms::ok(), can_sign).encode(env))
+}
+
 pub fn key_user_ids<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let key: ResourceArc<GpgmeKey> = args[0].decode()?;
     let mut list: Vec<Term<'a>> = Vec::new();
