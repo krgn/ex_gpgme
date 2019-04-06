@@ -70,7 +70,7 @@ defmodule Test.GpgmeCase do
     |> String.split()
     |> Enum.each(fn pid ->
       if matches?(pid, dir) do
-        %Result{status: 0} = Porcelain.exec("kill", [pid])
+        Porcelain.exec("kill", [pid])
       end
     end)
 
@@ -94,7 +94,7 @@ defmodule Test.GpgmeCase do
         key_path
       }"
 
-    %Result{status: 0, out: _out, err: _err} = Porcelain.shell(cmd)
+    Porcelain.shell(cmd)
     :ok
   end
 
@@ -114,7 +114,7 @@ defmodule Test.GpgmeCase do
       |> Path.join("tmp.ex_gpgme-#{rand_string()}")
 
     :ok = File.mkdir_p!(path)
-    %Result{status: 0} = Porcelain.exec("chmod", ["-R", "700", "#{path}"])
+    Porcelain.exec("chmod", ["-R", "700", "#{path}"])
     path
   end
 
