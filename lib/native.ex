@@ -27,4 +27,5 @@ defmodule ExGpgme.Native do
   # context related
   def context_create(_protocol, _path), do: :erlang.nif_error(:nif_not_loaded)
   def context_info(_ctx), do: :erlang.nif_error(:nif_not_loaded)
+  def context_import(_ctx, _data), do: :erlang.nif_error(:nif_not_loaded)
 end
