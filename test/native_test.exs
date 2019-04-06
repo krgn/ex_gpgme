@@ -41,8 +41,9 @@ defmodule ExGpgme.Bindings.Test do
 
     test "should import public key", ctx do
       {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
-      {:ok, info} = ExGpgme.Native.context_info(context)
+
       data = File.read!("test/data/boaty_mcboatface/public.asc")
+
       {:ok, result} = ExGpgme.Native.context_import(context, data)
 
       assert result.without_user_id == 0
@@ -69,8 +70,9 @@ defmodule ExGpgme.Bindings.Test do
 
     test "should not import trash", ctx do
       {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
-      {:ok, info} = ExGpgme.Native.context_info(context)
+
       data = "foobar"
+
       {:ok, result} = ExGpgme.Native.context_import(context, data)
 
       assert result.without_user_id == 0
@@ -89,8 +91,9 @@ defmodule ExGpgme.Bindings.Test do
 
     test "should import private key", ctx do
       {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
-      {:ok, info} = ExGpgme.Native.context_info(context)
+
       data = File.read!("test/data/boaty_mcboatface/private.asc")
+
       {:ok, result} = ExGpgme.Native.context_import(context, data)
 
       assert result.without_user_id == 0
@@ -122,7 +125,7 @@ defmodule ExGpgme.Bindings.Test do
 
     test "should encrypt", ctx do
       {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
-      {:ok, info} = ExGpgme.Native.context_info(context)
+
       data = "hello this is my message"
 
       {:ok, cipher} =
@@ -133,7 +136,7 @@ defmodule ExGpgme.Bindings.Test do
 
     test "should decrypt", ctx do
       {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
-      {:ok, info} = ExGpgme.Native.context_info(context)
+
       data = "hello this is my message"
 
       {:ok, cipher_text} =
@@ -142,6 +145,8 @@ defmodule ExGpgme.Bindings.Test do
           "D1DBB4E18FF6FA6AFA040B07728052F947BD30B8",
           data
         )
+
+      assert String.starts_with?(cipher_text, "-----BEGIN PGP MESSAGE-----")
 
       {:ok, decrypted} =
         ExGpgme.Native.context_decrypt(
@@ -152,6 +157,10 @@ defmodule ExGpgme.Bindings.Test do
 
       assert data == decrypted
     end
+
+    # test "should decrypt (symmetric)"
+    # test "should sign key"
+    # test "should verify"
   end
 
   describe "Keys" do
@@ -260,15 +269,4 @@ defmodule ExGpgme.Bindings.Test do
       assert !is_qualified
     end
   end
-
-  #   test "should import key"
-  #   test "should export key"
-  #   test "should sign key"
-  #   test "should verify"
-  # end
-
-  # describe "Encryption" do
-  #   test "should encrypt (simple)"
-  #   test "should decrypt (symmetric)"
-  # end
 end
