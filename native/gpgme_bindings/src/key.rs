@@ -139,6 +139,42 @@ pub fn key_can_authenticate<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Te
     Ok((atoms::ok(), can_authenticate).encode(env))
 }
 
+pub fn key_has_secret<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let key: ResourceArc<GpgmeKey> = args[0].decode()?;
+    let has_secret = key.0.has_secret().encode(env);
+    Ok((atoms::ok(), has_secret).encode(env))
+}
+
+pub fn key_is_revoked<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let key: ResourceArc<GpgmeKey> = args[0].decode()?;
+    let is_revoked = key.0.is_revoked().encode(env);
+    Ok((atoms::ok(), is_revoked).encode(env))
+}
+
+pub fn key_is_expired<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let key: ResourceArc<GpgmeKey> = args[0].decode()?;
+    let is_expired = key.0.is_expired().encode(env);
+    Ok((atoms::ok(), is_expired).encode(env))
+}
+
+pub fn key_is_disabled<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let key: ResourceArc<GpgmeKey> = args[0].decode()?;
+    let is_disabled = key.0.is_disabled().encode(env);
+    Ok((atoms::ok(), is_disabled).encode(env))
+}
+
+pub fn key_is_invalid<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let key: ResourceArc<GpgmeKey> = args[0].decode()?;
+    let is_invalid = key.0.is_invalid().encode(env);
+    Ok((atoms::ok(), is_invalid).encode(env))
+}
+
+pub fn key_is_qualified<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let key: ResourceArc<GpgmeKey> = args[0].decode()?;
+    let is_qualified = key.0.is_qualified().encode(env);
+    Ok((atoms::ok(), is_qualified).encode(env))
+}
+
 pub fn key_user_ids<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let key: ResourceArc<GpgmeKey> = args[0].decode()?;
     let mut list: Vec<Term<'a>> = Vec::new();

@@ -16,7 +16,12 @@ defmodule ExGpgme.Native do
   def key_can_sign(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
   def key_can_certify(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
   def key_can_authenticate(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
-
+  def key_has_secret(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
+  def key_is_revoked(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
+  def key_is_expired(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
+  def key_is_disabled(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
+  def key_is_invalid(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
+  def key_is_qualified(_key_ref), do: :erlang.nif_error(:nif_not_loaded)
   def context_create(_protocol, _path), do: :erlang.nif_error(:nif_not_loaded)
   def context_info(_ctx), do: :erlang.nif_error(:nif_not_loaded)
 end

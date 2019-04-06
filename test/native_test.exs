@@ -97,12 +97,55 @@ defmodule ExGpgme.Bindings.Test do
       assert can_certify
     end
 
-    @tag :focus
     test "should return can_authenticate", ctx do
       {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
       {:ok, [key]} = ExGpgme.Native.key_list(context)
       {:ok, can_authenticate} = ExGpgme.Native.key_can_authenticate(key)
       assert !can_authenticate
+    end
+
+    test "should return has_secret", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, has_secret} = ExGpgme.Native.key_has_secret(key)
+      assert !has_secret
+    end
+
+    test "should return is_revoked", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, is_revoked} = ExGpgme.Native.key_is_revoked(key)
+      assert !is_revoked
+    end
+
+    test "should return is_expired", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, is_expired} = ExGpgme.Native.key_is_expired(key)
+      assert !is_expired
+    end
+
+    @tag :focus
+    test "should return is_disabled", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, is_disabled} = ExGpgme.Native.key_is_disabled(key)
+      assert !is_disabled
+    end
+
+    test "should return is_invalid", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, is_invalid} = ExGpgme.Native.key_is_invalid(key)
+      assert !is_invalid
+    end
+
+    @tag :focus
+    test "should return is_qualified", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, [key]} = ExGpgme.Native.key_list(context)
+      {:ok, is_qualified} = ExGpgme.Native.key_is_qualified(key)
+      assert !is_qualified
     end
   end
 

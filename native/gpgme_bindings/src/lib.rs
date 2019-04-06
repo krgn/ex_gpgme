@@ -25,6 +25,12 @@ rustler_export_nifs! {
      ("key_can_sign", 1, key::key_can_sign),
      ("key_can_certify", 1, key::key_can_certify),
      ("key_can_authenticate", 1, key::key_can_authenticate),
+     ("key_has_secret"  , 1, key::key_has_secret)  ,
+     ("key_is_revoked"  , 1, key::key_is_revoked)  ,
+     ("key_is_expired"  , 1, key::key_is_expired)  ,
+     ("key_is_disabled" , 1, key::key_is_disabled) ,
+     ("key_is_invalid"  , 1, key::key_is_invalid)  ,
+     ("key_is_qualified", 1, key::key_is_qualified),
      ("context_create", 2, context::create),
      ("context_info", 1, context::info)],
     Some(on_load)
