@@ -1,4 +1,4 @@
 %{
   "porcelain": {:hex, :porcelain, "2.0.3", "2d77b17d1f21fed875b8c5ecba72a01533db2013bd2e5e62c6d286c029150fdc", [:mix], [], "hexpm"},
-  "rustler": {:hex, :rustler, "0.19.1", "5ee93e579a3092a38f9dc55d610368982a50282163449c66a7b9eed94cf56c68", [:mix], [], "hexpm"},
+  "rustler": {:hex, :rustler, "0.20.0", "6b2cc8149700a7b1df2226dbe273ec1f9449318cad3bd3b5b68125a4cf1f438b", [:mix], [], "hexpm"},
 }

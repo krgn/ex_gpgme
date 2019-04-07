@@ -3,8 +3,7 @@ defmodule ExGpgme do
   Documentation for ExGpgme.
   """
 
-  alias ExGpgme.Key
-  alias ExGpgme.Context
+  alias ExGpgme.{Key, Context}
 
   def create(path: gnupg_home) do
     Context.create(gnupg_home)

@@ -36,7 +36,7 @@ defmodule ExGpgme.MixProject do
 
   defp deps do
     [
-      {:rustler, "~> 0.19.1"},
+      {:rustler, "~> 0.20"},
       {:porcelain, "~> 2.0", only: :test}
     ]
   end

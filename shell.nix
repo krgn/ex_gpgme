@@ -3,6 +3,6 @@ let
 in
   pkgs.mkShell {
     buildInputs = with pkgs; [
-      gpgme gnupg
+      gpgme gnupg openssl pkgconfig
     ];
   }
