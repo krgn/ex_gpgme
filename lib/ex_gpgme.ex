@@ -5,20 +5,9 @@ defmodule ExGpgme do
 
   alias ExGpgme.{Key, Context}
 
-  def create(path: gnupg_home) do
-    Context.create(gnupg_home)
-  end
-
-  def list_keys(%Context{} = context) do
-    Context.list_keys(context)
-  end
-
-  def encrypt(%Context{} = context, %Key{} = key, data) when is_binary(data) do
-    Context.encrypt(context, key, data)
-  end
-
-  def decrypt(%Context{} = context, passphrase, data)
-      when is_binary(passphrase) and is_binary(data) do
-    Context.decrypt(context, passphrase, data)
-  end
+  defdelegate create(opts), to: Context
+  defdelegate list_keys(context), to: Context
+  defdelegate import_key(context, data), to: Context
+  defdelegate encrypt(context, fingerprint, data), to: Context
+  defdelegate decrypt(context, passphrase, data), to: Context
 end

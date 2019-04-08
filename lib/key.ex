@@ -19,7 +19,8 @@ defmodule ExGpgme.Key do
             is_disabled: false,
             is_invalid: false,
             is_qualified: false,
-            user_ids: []
+            user_ids: [],
+            subkeys: []
 
   @doc """
   Get a key map.
@@ -38,6 +39,7 @@ defmodule ExGpgme.Key do
     {:ok, is_invalid} = ExGpgme.Native.key_is_invalid(ref)
     {:ok, is_qualified} = ExGpgme.Native.key_is_qualified(ref)
     {:ok, user_ids} = ExGpgme.Native.key_user_ids(ref)
+    {:ok, subkeys} = ExGpgme.Native.key_subkeys(ref)
 
     %Key{
       id: id,
@@ -52,7 +54,8 @@ defmodule ExGpgme.Key do
       is_disabled: is_disabled,
       is_invalid: is_invalid,
       is_qualified: is_qualified,
-      user_ids: user_ids
+      user_ids: user_ids,
+      subkeys: subkeys
     }
   end
 end

@@ -20,6 +20,7 @@ rustler_export_nifs! {
     [("key_list", 1, key::list),
      ("key_id", 1, key::key_id),
      ("key_user_ids", 1, key::key_user_ids),
+     ("key_subkeys", 1, key::key_subkeys),
      ("key_fingerprint", 1, key::key_fingerprint),
      ("key_can_encrypt", 1, key::key_can_encrypt),
      ("key_can_sign", 1, key::key_can_sign),

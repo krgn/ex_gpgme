@@ -27,7 +27,7 @@ defmodule ExGpgme.Context do
       true
 
   """
-  def create(path) when is_binary(path) do
+  def create(path: path) when is_binary(path) do
     case ExGpgme.Native.context_create(:openpgp, path) do
       {:ok, ref} ->
         case ExGpgme.Native.context_info(ref) do
@@ -74,5 +74,9 @@ defmodule ExGpgme.Context do
   def decrypt(%Context{} = context, passphrase, data)
       when is_binary(data) and is_binary(passphrase) do
     ExGpgme.Native.context_decrypt(context.ref, passphrase, data)
+  end
+
+  def import_key(%Context{} = context, data) when is_binary(data) do
+    ExGpgme.Native.context_import(context.ref, data)
   end
 end

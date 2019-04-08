@@ -321,3 +321,153 @@ pub fn key_user_ids<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> 
     }
     Ok((atoms::ok(), list).encode(env))
 }
+
+mod subkey {
+
+    rustler_atoms! {
+    atom fingerprint;
+    atom secret;
+    atom algorithm;
+    atom expired;
+    atom creation_time;
+    atom expiration_time;
+    atom curve;
+    atom length;
+    atom card_key;
+    atom card_serial_number;
+    atom revoked;
+    atom invalid;
+    atom disabled;
+    atom can_sign;
+    atom can_encrypt;
+    atom can_certify;
+    atom can_auth;
+    }
+}
+
+pub fn key_subkeys<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let key: ResourceArc<GpgmeKey> = args[0].decode()?;
+    let mut list: Vec<Term<'a>> = Vec::new();
+
+    for subkey in key.0.subkeys() {
+        let mut map = Term::map_new(env);
+
+        map = map.map_put(
+            subkey::fingerprint().encode(env),
+            subkey
+                .fingerprint()
+                .map(|s| s.encode(env))
+                .unwrap_or(atoms::none().encode(env)),
+        )?;
+
+        map = map.map_put(subkey::secret().encode(env), subkey.is_secret().encode(env))?;
+
+        map = map.map_put(
+            subkey::algorithm().encode(env),
+            subkey
+                .algorithm()
+                .name()
+                .map(|s| s.encode(env))
+                .unwrap_or(atoms::unknown().encode(env)),
+        )?;
+
+        map = map.map_put(
+            subkey::expired().encode(env),
+            subkey.is_expired().encode(env),
+        )?;
+
+        map = map.map_put(
+            subkey::creation_time().encode(env),
+            subkey
+                .creation_time()
+                .map(|t| {
+                    t.duration_since(std::time::SystemTime::UNIX_EPOCH)
+                        .map(|t| t.as_secs().encode(env))
+                        .unwrap_or(atoms::unknown().encode(env))
+                })
+                .unwrap_or(atoms::unknown().encode(env)),
+        )?;
+
+        map = map.map_put(
+            subkey::expiration_time().encode(env),
+            subkey
+                .expiration_time()
+                .map(|t| {
+                    t.duration_since(std::time::SystemTime::UNIX_EPOCH)
+                        .map(|t| t.as_secs().encode(env))
+                        .unwrap_or(atoms::unknown().encode(env))
+                })
+                .unwrap_or(atoms::unknown().encode(env)),
+        )?;
+
+        map = map.map_put(
+            subkey::curve().encode(env),
+            subkey
+                .curve()
+                .map(|s| s.encode(env))
+                .unwrap_or(atoms::unknown().encode(env)),
+        )?;
+
+        map = map.map_put(subkey::length().encode(env), subkey.length().encode(env))?;
+
+        map = map.map_put(
+            subkey::card_key().encode(env),
+            subkey.is_card_key().encode(env),
+        )?;
+
+        map = map.map_put(
+            subkey::card_serial_number().encode(env),
+            subkey
+                .card_serial_number()
+                .map(|s| s.encode(env))
+                .unwrap_or(atoms::none().encode(env)),
+        )?;
+
+        map = map.map_put(
+            subkey::revoked().encode(env),
+            subkey.is_revoked().encode(env),
+        )?;
+
+        map = map.map_put(
+            subkey::invalid().encode(env),
+            subkey.is_invalid().encode(env),
+        )?;
+
+        map = map.map_put(
+            subkey::disabled().encode(env),
+            subkey.is_disabled().encode(env),
+        )?;
+
+        map = map.map_put(
+            subkey::can_sign().encode(env),
+            subkey.can_sign().encode(env),
+        )?;
+
+        map = map.map_put(
+            subkey::can_encrypt().encode(env),
+            subkey.can_encrypt().encode(env),
+        )?;
+
+        map = map.map_put(
+            subkey::can_certify().encode(env),
+            subkey.can_certify().encode(env),
+        )?;
+
+        map = map.map_put(
+            subkey::can_auth().encode(env),
+            subkey.can_authenticate().encode(env),
+        )?;
+
+        list.push(map)
+    }
+
+    Ok((atoms::ok(), list).encode(env))
+}
+
+// .field("revoked", &self.is_revoked())
+// .field("invalid", &self.is_invalid())
+// .field("disabled", &self.is_disabled())
+// .field("can_sign", &self.can_sign())
+// .field("can_encrypt", &self.can_encrypt())
+// .field("can_certify", &self.can_certify())
+// .field("can_auth", &self.can_authenticate())
