@@ -9,6 +9,12 @@ pub(crate) struct GpgmeKey(pub gpgme::Key);
 unsafe impl Send for GpgmeKey {}
 unsafe impl Sync for GpgmeKey {}
 
+impl std::convert::From<gpgme::Key> for GpgmeKey {
+    fn from(key: gpgme::Key) -> GpgmeKey {
+        GpgmeKey(key)
+    }
+}
+
 mod signature {
     rustler_atoms! {
         atom signer_key;

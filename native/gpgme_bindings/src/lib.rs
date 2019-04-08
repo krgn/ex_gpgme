@@ -36,6 +36,7 @@ rustler_export_nifs! {
      ("context_import", 2, context::import),
      ("context_encrypt", 3, context::encrypt),
      ("context_decrypt", 3, context::decrypt),
+     ("context_find_key", 2, context::find_key),
      ("context_info", 1, context::info)],
     Some(on_load)
 }

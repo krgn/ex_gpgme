@@ -166,6 +166,23 @@ defmodule ExGpgme.Bindings.Test do
       assert data == decrypted
     end
 
+    test "should find key by email", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, ref} = ExGpgme.Native.context_find_key(context, "foo@mcbar")
+      assert is_reference(ref)
+    end
+
+    test "should find key by name", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      {:ok, ref} = ExGpgme.Native.context_find_key(context, "Foo McBar")
+      assert is_reference(ref)
+    end
+
+    test "should not find key wth bogus name", ctx do
+      {:ok, context} = ExGpgme.Native.context_create(:openpgp, ctx[:gnupg_home])
+      :not_found = ExGpgme.Native.context_find_key(context, "Dr. Baz")
+    end
+
     # test "should encrypt (symmetric)"
     # test "should decrypt (symmetric)"
 

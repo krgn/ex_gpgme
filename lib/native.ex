@@ -31,4 +31,5 @@ defmodule ExGpgme.Native do
   def context_import(_ctx, _data), do: :erlang.nif_error(:nif_not_loaded)
   def context_encrypt(_ctx, _key, _data), do: :erlang.nif_error(:nif_not_loaded)
   def context_decrypt(_ctx, _key, _data), do: :erlang.nif_error(:nif_not_loaded)
+  def context_find_key(_ctx, _query), do: :erlang.nif_error(:nif_not_loaded)
 end

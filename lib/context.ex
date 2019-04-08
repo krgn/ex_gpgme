@@ -79,4 +79,11 @@ defmodule ExGpgme.Context do
   def import_key(%Context{} = context, data) when is_binary(data) do
     ExGpgme.Native.context_import(context.ref, data)
   end
+
+  def find_key(%Context{} = context, query) do
+    case ExGpgme.Native.context_find_key(context.ref, query) do
+      :not_found -> {:error, :not_found}
+      {:ok, ref} -> {:ok, ExGpgme.Key.from(ref)}
+    end
+  end
 end

@@ -1,5 +1,6 @@
 use atoms;
 use gpgme::{Context, PinentryMode, Protocol};
+use key::GpgmeKey;
 use rustler::resource::ResourceArc;
 use rustler::{Encoder, Env, NifResult, Term};
 use std::io::prelude::*;
@@ -243,4 +244,17 @@ pub fn decrypt<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     );
     let binary = String::from_utf8(plaintext).unwrap().encode(env);
     Ok((atoms::ok(), binary).encode(env))
+}
+
+pub fn find_key<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let mut context = res.0.lock().unwrap();
+    let query: String = args[1].decode()?;
+    match context.get_key(query) {
+        Ok(key) => {
+            let wrapped: ResourceArc<GpgmeKey> = ResourceArc::new(key.into());
+            Ok((atoms::ok(), wrapped).encode(env))
+        }
+        Err(_err) => Err(rustler::Error::Atom("not_found")),
+    }
 }
