@@ -1,6 +1,5 @@
 use atoms;
 use gpgme::{Context, PinentryMode, Protocol};
-use key::GpgmeKey;
 use rustler::resource::ResourceArc;
 use rustler::{Encoder, Env, NifResult, Term};
 use std::io::prelude::*;

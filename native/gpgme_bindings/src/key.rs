@@ -9,6 +9,21 @@ pub(crate) struct GpgmeKey(pub gpgme::Key);
 unsafe impl Send for GpgmeKey {}
 unsafe impl Sync for GpgmeKey {}
 
+mod signature {
+    rustler_atoms! {
+        atom signer_key;
+        atom signer;
+        atom algorithm;
+        atom expired;
+        atom creation_time;
+        atom expiration_time;
+        atom invalid;
+        atom revoked;
+        atom exportable;
+        atom status;
+    }
+}
+
 mod validity {
     use gpgme::Validity;
 
@@ -223,63 +238,86 @@ pub fn key_user_ids<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> 
 
         map = map.map_put(user_id::tofu_info().encode(env), atoms::none().encode(env))?;
 
-        let signatures: Vec<&str> = Vec::new();
+        let mut signatures: Vec<Term<'a>> = Vec::new();
+
+        for signature in user_id.signatures() {
+            let mut sig = Term::map_new(env);
+
+            sig = sig.map_put(
+                signature::signer_key().encode(env),
+                signature
+                    .signer_key_id()
+                    .map(|s| s.encode(env))
+                    .unwrap_or(atoms::none().encode(env)),
+            )?;
+
+            sig = sig.map_put(
+                signature::signer().encode(env),
+                signature
+                    .signer_user_id()
+                    .map(|s| s.encode(env))
+                    .unwrap_or(atoms::none().encode(env)),
+            )?;
+
+            sig = sig.map_put(
+                signature::algorithm().encode(env),
+                signature
+                    .algorithm()
+                    .name()
+                    .map(|s| s.encode(env))
+                    .unwrap_or(atoms::unknown().encode(env)),
+            )?;
+
+            sig = sig.map_put(
+                signature::creation_time().encode(env),
+                signature
+                    .creation_time()
+                    .map(|t| {
+                        t.duration_since(std::time::SystemTime::UNIX_EPOCH)
+                            .map(|t| t.as_secs().encode(env))
+                            .unwrap_or(atoms::unknown().encode(env))
+                    })
+                    .unwrap_or(atoms::unknown().encode(env)),
+            )?;
+
+            sig = sig.map_put(
+                signature::expiration_time().encode(env),
+                signature
+                    .expiration_time()
+                    .map(|t| {
+                        t.duration_since(std::time::SystemTime::UNIX_EPOCH)
+                            .map(|t| t.as_secs().encode(env))
+                            .unwrap_or(atoms::unknown().encode(env))
+                    })
+                    .unwrap_or(atoms::unknown().encode(env)),
+            )?;
+
+            sig = sig.map_put(
+                signature::invalid().encode(env),
+                signature.is_invalid().encode(env),
+            )?;
+
+            sig = sig.map_put(
+                signature::revoked().encode(env),
+                signature.is_revocation().encode(env),
+            )?;
+
+            sig = sig.map_put(
+                signature::exportable().encode(env),
+                signature.is_exportable().encode(env),
+            )?;
+
+            sig = sig.map_put(
+                signature::status().encode(env),
+                format!("{:?}", signature.status()).encode(env),
+            )?;
+
+            signatures.push(sig);
+        }
+
         map = map.map_put(user_id::signatures().encode(env), signatures.encode(env))?;
 
         list.push(map)
     }
     Ok((atoms::ok(), list).encode(env))
 }
-
-// pub fn list_old<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
-//     let res: ResourceArc<GpgmeContext> = args[0].decode()?;
-//     let mut ctx = res.0.lock().unwrap();
-
-//     let mut mode = KeyListMode::empty();
-//     mode.insert(KeyListMode::LOCAL);
-
-//     let mut key_list = vec![];
-
-//     ctx.set_key_list_mode(mode).expect("key list mode");
-//     let mut keys = ctx.keys().expect("keys");
-//     for key in keys.by_ref().filter_map(|x| x.ok()) {
-//         let mut map = Term::map_new(env);
-
-//         map = map.map_put("keyid".encode(env), key.id().unwrap_or("?").encode(env))?;
-//         map = map.map_put(
-//             "fpr".encode(env),
-//             key.fingerprint().unwrap_or("?").encode(env),
-//         )?;
-//         map = map.map_put("can_encrypt".encode(env), key.can_encrypt().encode(env))?;
-//         map = map.map_put("can_sign".encode(env), key.can_sign().encode(env))?;
-//         map = map.map_put("can_certify".encode(env), key.can_certify().encode(env))?;
-//         map = map.map_put(
-//             "can_authenticate".encode(env),
-//             key.can_authenticate().encode(env),
-//         )?;
-//         map = map.map_put("has_secret".encode(env), key.has_secret().encode(env))?;
-//         map = map.map_put("is_revoked".encode(env), key.is_revoked().encode(env))?;
-//         map = map.map_put("is_expired".encode(env), key.is_expired().encode(env))?;
-//         map = map.map_put("is_disabled".encode(env), key.is_disabled().encode(env))?;
-//         map = map.map_put("is_invalid".encode(env), key.is_invalid().encode(env))?;
-//         map = map.map_put("is_qualified".encode(env), key.is_qualified().encode(env))?;
-
-//         let mut users = vec![];
-
-//         for (_i, user) in key.user_ids().enumerate() {
-//             let mut user_map = Term::map_new(env);
-//             user_map = user_map.map_put(
-//                 "userid".encode(env),
-//                 user.id().unwrap_or("[none]").encode(env),
-//             )?;
-//             user_map =
-//                 user_map.map_put("valid".encode(env), user.validity().to_string().encode(env))?;
-//             users.push(user_map);
-//         }
-//         map = map.map_put("users".encode(env), users.encode(env))?;
-
-//         key_list.push(map);
-//     }
-
-//     Ok((atoms::ok(), key_list).encode(env))
-// }
