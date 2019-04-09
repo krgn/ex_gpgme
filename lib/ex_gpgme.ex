@@ -8,12 +8,19 @@ defmodule ExGpgme do
   defdelegate create(opts), to: Context
   defdelegate list_keys(context), to: Context
   defdelegate import_key(context, data), to: Context
-  # defdelegate epxort_key(context, key), to: Context
+
+  # TODO:
+  # defdelegate export_key(context, key), to: Context
+  # defdelegate create_key(context, key), to: Context
+
   defdelegate encrypt(context, key, data), to: Context
   defdelegate encrypt_symmetric(context, passphrase, data), to: Context
   defdelegate decrypt(context, passphrase, data), to: Context
+
+  # TODO:
   # defdelegate encrypt_and_sign(context, key, data), to: Context
   # defdelegate decrypt_and_verify(context, passphrase, data), to: Context
+
   defdelegate find_key(context, query), to: Context
 
   # TODO:

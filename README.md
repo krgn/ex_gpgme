@@ -2,7 +2,7 @@
 
 Simple wrapper around `gpgme` for Elixir/Erlang.
 
-*Note*: this is a work in progress, do not use.
+*Note*: this is a work in progress! Use at your own discretion.
 
 ## Installation
 
@@ -21,3 +21,12 @@ Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_do
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/ex_gpgme](https://hexdocs.pm/ex_gpgme).
 
+## Todo
+
+- implement `export_key`
+- implement `create_key`
+- implement `encrypt_and_sign`
+- implement `decrypt_and_verify`
+- implement `sign`
+- implement `verify`
+- asynchronous encryption/decryption
