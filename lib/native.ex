@@ -84,4 +84,13 @@ defmodule ExGpgme.Native do
 
   def context_clear_signature_notations(_ctx),
     do: :erlang.nif_error(:nif_not_loaded)
+
+  def context_sender(_ctx),
+    do: :erlang.nif_error(:nif_not_loaded)
+
+  def context_set_sender(_ctx, _sender),
+    do: :erlang.nif_error(:nif_not_loaded)
+
+  def context_clear_sender(_ctx),
+    do: :erlang.nif_error(:nif_not_loaded)
 end

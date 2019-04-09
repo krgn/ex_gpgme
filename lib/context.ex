@@ -129,6 +129,36 @@ defmodule ExGpgme.Context do
     ExGpgme.Native.context_clear_signature_notations(context.ref)
   end
 
+  @spec sender(t()) :: {:ok, :none} | {:error, atom()}
+  @doc """
+  Return currently active sender
+  """
+  def sender(%Context{} = context) do
+    case ExGpgme.Native.context_sender(context.ref) do
+      :error -> {:ok, :none}
+      sender -> {:ok, sender}
+    end
+  end
+
+  @spec clear_sender(t()) :: {:ok, :none} | {:error, atom()}
+  @doc """
+  Return currently active clear_sender
+  """
+  def clear_sender(%Context{} = context) do
+    ExGpgme.Native.context_clear_sender(context.ref)
+  end
+
+  @spec set_sender(t(), binary()) :: {:ok, :none} | {:ok, binary()} | {:error, :not_found}
+  @doc """
+  Return currently active set_sender
+  """
+  def set_sender(%Context{} = context, sender) do
+    case ExGpgme.Native.context_set_sender(context.ref, sender) do
+      :error -> {:error, :not_found}
+      :ok -> {:ok, sender}
+    end
+  end
+
   # @spec signers(t()) :: {:ok, list()} | {:error, atom()}
   # @doc """
   # Return a list of signers.

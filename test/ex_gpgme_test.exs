@@ -332,6 +332,39 @@ defmodule ExGpgme.Test do
     end
   end
 
+  describe "Sender" do
+    test "show", ctx do
+      {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
+      {:ok, :none} = ExGpgme.sender(context)
+    end
+
+    test "set", ctx do
+      {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
+      {:ok, :none} = ExGpgme.sender(context)
+      sender = "foo@mcbar.dev"
+      {:ok, ^sender} = ExGpgme.set_sender(context, sender)
+      {:ok, ^sender} = ExGpgme.sender(context)
+    end
+
+    test "clear", ctx do
+      {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
+      {:ok, :none} = ExGpgme.sender(context)
+      sender = "foo@mcbar.dev"
+      {:ok, ^sender} = ExGpgme.set_sender(context, sender)
+      {:ok, ^sender} = ExGpgme.sender(context)
+      :ok = ExGpgme.clear_sender(context)
+      {:ok, :none} = ExGpgme.sender(context)
+    end
+
+    test "doesn't set unknown user", ctx do
+      {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
+      {:ok, :none} = ExGpgme.sender(context)
+      sender = "foo"
+      {:error, :not_found} = ExGpgme.set_sender(context, sender)
+      {:ok, :none} = ExGpgme.sender(context)
+    end
+  end
+
   describe "Signature Notations" do
     test "list signature notations", ctx do
       {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
@@ -353,7 +386,6 @@ defmodule ExGpgme.Test do
       [%{critical: true, human_readable: true, name: "foo", value: "bar"}] = notations
     end
 
-    @tag :focus
     test "clear signature notations", ctx do
       {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
       {:ok, notations} = ExGpgme.signature_notations(context)

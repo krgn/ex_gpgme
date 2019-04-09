@@ -358,3 +358,32 @@ pub fn clear_signature_notations<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResu
     context.clear_signature_notations();
     Ok(atoms::ok().encode(env))
 }
+
+pub fn sender<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let context = res.0.lock().unwrap();
+    match context.sender() {
+        Ok(s) if s.len() == 0 => Ok(atoms::none().encode(env)),
+        Ok(s) => Ok(s.encode(env)),
+        Err(_err) => Err(rustler::Error::Atom("error")),
+    }
+}
+
+pub fn set_sender<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let sender: String = args[1].decode()?;
+    let mut context = res.0.lock().unwrap();
+    match context.set_sender(sender) {
+        Ok(s) => Ok(atoms::ok().encode(env)),
+        Err(_err) => Err(rustler::Error::Atom("error")),
+    }
+}
+
+pub fn clear_sender<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let mut context = res.0.lock().unwrap();
+    match context.clear_sender() {
+        Ok(_) => Ok(atoms::ok().encode(env)),
+        Err(_err) => Err(rustler::Error::Atom("error")),
+    }
+}

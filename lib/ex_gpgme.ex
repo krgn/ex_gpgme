@@ -20,12 +20,13 @@ defmodule ExGpgme do
   defdelegate add_signature_notation(context, name, value, flags), to: Context
   defdelegate clear_signature_notations(context), to: Context
 
+  defdelegate sender(context), to: Context
+  defdelegate set_sender(context, sender), to: Context
+  defdelegate clear_sender(context), to: Context
+
   # TODO:
   # defdelegate sign(context, mode = :normal|:clear|:detached, key, data), to: Context
   # defdelegate verify(context, mode = :normal|:detached|:opaque, passphrase, data), to: Context
-  # defdelegate sender
-  # defdelegate set_sender
-  # defdelegate clear_sender
   # defdelegate signers
   # defdelegate add_signer
   # defdelegate clear_signers
