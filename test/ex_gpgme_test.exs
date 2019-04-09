@@ -332,11 +332,10 @@ defmodule ExGpgme.Test do
     end
   end
 
-  describe "Public Key Encryption/Decryption" do
+  describe "Encryption/Decryption" do
     alias ExGpgme.Key
 
-    @tag :focus
-    test "should encrypt/decrypt data", ctx do
+    test "should encrypt/decrypt data with public key", ctx do
       {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
 
       public_key = File.read!("test/data/boaty_mcboatface/private.asc")
@@ -360,6 +359,31 @@ defmodule ExGpgme.Test do
 
       passphrase = Application.get_env(:ex_gpgme, :test_passphrase)
       {:ok, decrypted} = ExGpgme.decrypt(context, passphrase, cipher_text)
+
+      assert message == decrypted
+    end
+
+    @tag :focus
+    test "should encrypt/decrypt data with symmetric key", ctx do
+      {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
+
+      message = """
+      Hello Foo,
+
+      Thank you for your message. I shall meet you soon.
+
+      Yours truly,
+
+      Boaty
+      """
+
+      shared_passphrase = Application.get_env(:ex_gpgme, :test_passphrase)
+
+      {:ok, cipher_text} = ExGpgme.encrypt_symmetric(context, shared_passphrase, message)
+
+      assert String.starts_with?(cipher_text, "-----BEGIN PGP MESSAGE-----")
+
+      {:ok, decrypted} = ExGpgme.decrypt(context, shared_passphrase, cipher_text)
 
       assert message == decrypted
     end

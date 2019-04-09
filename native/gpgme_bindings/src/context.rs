@@ -225,6 +225,31 @@ pub fn encrypt<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     Ok((atoms::ok(), ascii).encode(env))
 }
 
+pub fn encrypt_symmetric<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let passphrase_str: String = args[1].decode()?;
+    let passphrase: &[u8] = passphrase_str.as_bytes();
+    let data: String = args[2].decode()?;
+    let mut context = res.0.lock().unwrap();
+    let mut encrypted = Vec::new();
+    context.with_passphrase_provider(
+        |_req: gpgme::PassphraseRequest, out: &mut Write| match out.write_all(passphrase) {
+            Ok(()) => Ok(()),
+            Err(_) => Err(gpgme::Error::from_code(32)),
+        },
+        |ctx| {
+            ctx.encrypt_symmetric_with_flags(
+                data,
+                &mut encrypted,
+                gpgme::EncryptFlags::ALWAYS_TRUST,
+            )
+            .unwrap();
+        },
+    );
+    let ascii = String::from_utf8(encrypted).unwrap().encode(env);
+    Ok((atoms::ok(), ascii).encode(env))
+}
+
 pub fn decrypt<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let res: ResourceArc<GpgmeContext> = args[0].decode()?;
     let passphrase_str: String = args[1].decode()?;

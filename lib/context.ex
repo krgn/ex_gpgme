@@ -67,6 +67,15 @@ defmodule ExGpgme.Context do
     ExGpgme.Native.context_encrypt(context.ref, key.fingerprint, data)
   end
 
+  @spec encrypt_symmetric(t(), binary(), binary()) :: {:ok, binary()} | {:error, atom()}
+  @doc """
+  Encrypt some passed string with the given Key.
+  """
+  def encrypt_symmetric(%Context{} = context, passphrase, data)
+      when is_binary(passphrase) and is_binary(data) do
+    ExGpgme.Native.context_encrypt_symmetric(context.ref, passphrase, data)
+  end
+
   @spec decrypt(t(), binary(), binary()) :: {:ok, binary()} | {:error, atom()}
   @doc """
   Decrypt some passed string with the given passphrase.
