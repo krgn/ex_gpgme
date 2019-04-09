@@ -2,7 +2,8 @@
 
 Simple wrapper around `gpgme` for Elixir/Erlang.
 
-*Note*: this is a work in progress! Use at your own discretion.
+*Note*: this is a work in progress and at this point mostly a learning
+exercise! Use at your own discretion.
 
 ## Prior Art
 
