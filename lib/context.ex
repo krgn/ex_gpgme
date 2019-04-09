@@ -159,11 +159,33 @@ defmodule ExGpgme.Context do
     end
   end
 
-  # @spec signers(t()) :: {:ok, list()} | {:error, atom()}
-  # @doc """
-  # Return a list of signers.
-  # """
-  # def signers(%Context{} = context) do
-  #   ExGpgme.Native.context_signers(context.ref)
-  # end
+  @spec signers(t()) :: {:ok, :none} | {:error, atom()}
+  @doc """
+  Return currently active signers
+  """
+  def signers(%Context{} = context) do
+    case ExGpgme.Native.context_signers(context.ref) do
+      :error -> {:ok, :none}
+      {:ok, signers} -> {:ok, Enum.map(signers, &Key.from/1)}
+    end
+  end
+
+  @spec clear_signers(t()) :: {:ok, :none} | {:error, atom()}
+  @doc """
+  Return currently active clear_signers
+  """
+  def clear_signers(%Context{} = context) do
+    ExGpgme.Native.context_clear_signers(context.ref)
+  end
+
+  @spec add_signer(t(), Key.t()) :: {:ok, Key.t()} | {:error, :not_found}
+  @doc """
+  Return currently active add_signer
+  """
+  def add_signer(%Context{} = context, %Key{} = signer) do
+    case ExGpgme.Native.context_add_signer(context.ref, signer.ref) do
+      :error -> {:error, :not_found}
+      :ok -> {:ok, signer}
+    end
+  end
 end

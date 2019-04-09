@@ -374,7 +374,7 @@ pub fn set_sender<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
     let sender: String = args[1].decode()?;
     let mut context = res.0.lock().unwrap();
     match context.set_sender(sender) {
-        Ok(s) => Ok(atoms::ok().encode(env)),
+        Ok(_) => Ok(atoms::ok().encode(env)),
         Err(_err) => Err(rustler::Error::Atom("error")),
     }
 }
@@ -386,4 +386,32 @@ pub fn clear_sender<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> 
         Ok(_) => Ok(atoms::ok().encode(env)),
         Err(_err) => Err(rustler::Error::Atom("error")),
     }
+}
+
+pub fn signers<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let context = res.0.lock().unwrap();
+    let mut signers: Vec<Term<'a>> = Vec::new();
+    for signer in context.signers() {
+        let key: ResourceArc<GpgmeKey> = ResourceArc::new(signer.into());
+        signers.push(key.encode(env))
+    }
+    Ok((atoms::ok(), signers).encode(env))
+}
+
+pub fn add_signer<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let signer: ResourceArc<GpgmeKey> = args[1].decode()?;
+    let mut context = res.0.lock().unwrap();
+    match context.add_signer(&signer.0) {
+        Ok(_) => Ok(atoms::ok().encode(env)),
+        Err(_) => Err(rustler::Error::Atom("error")),
+    }
+}
+
+pub fn clear_signers<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let mut context = res.0.lock().unwrap();
+    context.clear_signers();
+    Ok(atoms::ok().encode(env))
 }

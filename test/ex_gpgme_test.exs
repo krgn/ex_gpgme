@@ -365,6 +365,32 @@ defmodule ExGpgme.Test do
     end
   end
 
+  describe "Signer" do
+    test "show", ctx do
+      {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
+      {:ok, []} = ExGpgme.signers(context)
+    end
+
+    test "add", ctx do
+      {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
+      [key | keys] = ExGpgme.list_keys(context)
+      {:ok, ^key} = ExGpgme.add_signer(context, key)
+      {:ok, [signer | _]} = ExGpgme.signers(context)
+      assert key.fingerprint == signer.fingerprint
+    end
+
+    test "clear", ctx do
+      {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
+      [key | keys] = ExGpgme.list_keys(context)
+      {:ok, ^key} = ExGpgme.add_signer(context, key)
+      {:ok, signers} = ExGpgme.signers(context)
+      assert length(signers) == 1
+      :ok = ExGpgme.clear_signers(context)
+      {:ok, signers} = ExGpgme.signers(context)
+      assert length(signers) == 0
+    end
+  end
+
   describe "Signature Notations" do
     test "list signature notations", ctx do
       {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])

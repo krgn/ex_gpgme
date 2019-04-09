@@ -8,6 +8,7 @@ defmodule ExGpgme.Key do
   @type t :: Key
 
   defstruct id: nil,
+            ref: nil,
             fingerprint: nil,
             has_secret: false,
             can_encrypt: false,
@@ -43,6 +44,7 @@ defmodule ExGpgme.Key do
 
     %Key{
       id: id,
+      ref: ref,
       fingerprint: fingerprint,
       has_secret: has_secret,
       can_encrypt: can_encrypt,
