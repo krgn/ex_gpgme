@@ -1,5 +1,5 @@
 use atoms;
-use gpgme::{Context, PinentryMode, Protocol};
+use gpgme::{Context, PinentryMode, Protocol, SignatureNotationFlags};
 use key::GpgmeKey;
 use rustler::resource::ResourceArc;
 use rustler::{Encoder, Env, NifResult, Term};
@@ -282,4 +282,79 @@ pub fn find_key<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
         }
         Err(_err) => Err(rustler::Error::Atom("not_found")),
     }
+}
+
+mod signature_notation {
+    rustler_atoms! {
+        atom name;
+        atom value;
+        atom critical;
+        atom human_readable;
+    }
+}
+
+pub fn signature_notations<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let context = res.0.lock().unwrap();
+    let mut notations: Vec<Term<'a>> = Vec::new();
+    for notation in context.signature_notations() {
+        let mut map = Term::map_new(env);
+        map = map.map_put(
+            signature_notation::name().encode(env),
+            notation
+                .name()
+                .map(|s| s.encode(env))
+                .unwrap_or(atoms::none().encode(env)),
+        )?;
+        map = map.map_put(
+            signature_notation::value().encode(env),
+            notation
+                .value()
+                .map(|s| s.encode(env))
+                .unwrap_or(atoms::none().encode(env)),
+        )?;
+        map = map.map_put(
+            signature_notation::critical().encode(env),
+            notation.is_critical().encode(env),
+        )?;
+        map = map.map_put(
+            signature_notation::human_readable().encode(env),
+            notation.is_human_readable().encode(env),
+        )?;
+        notations.push(map)
+    }
+    Ok((atoms::ok(), notations).encode(env))
+}
+
+pub fn add_signature_notation<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let mut context = res.0.lock().unwrap();
+    let name: String = args[1].decode()?;
+    let value: String = args[2].decode()?;
+    let flags: Vec<Term<'a>> = args[3].decode()?;
+    let parsed_flags: SignatureNotationFlags =
+        flags.iter().fold(SignatureNotationFlags::empty(), |a, t| {
+            let result: NifResult<rustler::types::atom::Atom> = t.decode();
+            match result {
+                Ok(t) if t == signature_notation::human_readable() => {
+                    a | SignatureNotationFlags::HUMAN_READABLE
+                }
+                Ok(t) if t == signature_notation::critical() => {
+                    a | SignatureNotationFlags::CRITICAL
+                }
+                _ => a,
+            }
+        });
+    // let flags = SignatureNotationFlags::HUMAN_READABLE | SignatureNotationFlags::CRITICAL;
+    match context.add_signature_notation(name, value, parsed_flags) {
+        Ok(_) => Ok(atoms::ok().encode(env)),
+        Err(_err) => Err(rustler::Error::Atom("error")),
+    }
+}
+
+pub fn clear_signature_notations<'a>(env: Env<'a>, args: &[Term<'a>]) -> NifResult<Term<'a>> {
+    let res: ResourceArc<GpgmeContext> = args[0].decode()?;
+    let mut context = res.0.lock().unwrap();
+    context.clear_signature_notations();
+    Ok(atoms::ok().encode(env))
 }

@@ -85,14 +85,55 @@ defmodule ExGpgme.Context do
     ExGpgme.Native.context_decrypt(context.ref, passphrase, data)
   end
 
+  @spec import_key(t(), binary()) :: {:ok, map()} | {:error, atom()}
+  @doc """
+  Decrypt some passed string with the given passphrase.
+  """
   def import_key(%Context{} = context, data) when is_binary(data) do
     ExGpgme.Native.context_import(context.ref, data)
   end
 
+  @spec find_key(t(), binary()) :: {:ok, Key.t()} | {:error, atom()}
+  @doc """
+  Decrypt some passed string with the given passphrase.
+  """
   def find_key(%Context{} = context, query) do
     case ExGpgme.Native.context_find_key(context.ref, query) do
       :not_found -> {:error, :not_found}
       {:ok, ref} -> {:ok, ExGpgme.Key.from(ref)}
     end
   end
+
+  @spec signature_notations(t()) :: {:ok, list()} | {:error, atom()}
+  @doc """
+  Return a list of signers.
+  """
+  def signature_notations(%Context{} = context) do
+    ExGpgme.Native.context_signature_notations(context.ref)
+  end
+
+  @spec add_signature_notation(t(), binary(), binary(), keyword()) ::
+          {:ok, list()} | {:error, atom()}
+  @doc """
+  Return a list of add_signers.
+  """
+  def add_signature_notation(%Context{} = context, name, value, flags) do
+    ExGpgme.Native.context_add_signature_notation(context.ref, name, value, flags)
+  end
+
+  @spec clear_signature_notations(t()) :: {:ok, list()} | {:error, atom()}
+  @doc """
+  Return a list of clear_signers.
+  """
+  def clear_signature_notations(%Context{} = context) do
+    ExGpgme.Native.context_clear_signature_notations(context.ref)
+  end
+
+  # @spec signers(t()) :: {:ok, list()} | {:error, atom()}
+  # @doc """
+  # Return a list of signers.
+  # """
+  # def signers(%Context{} = context) do
+  #   ExGpgme.Native.context_signers(context.ref)
+  # end
 end

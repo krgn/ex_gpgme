@@ -332,6 +332,48 @@ defmodule ExGpgme.Test do
     end
   end
 
+  describe "Signature Notations" do
+    test "list signature notations", ctx do
+      {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
+      {:ok, notations} = ExGpgme.signature_notations(context)
+      assert is_list(notations)
+    end
+
+    test "add signature notation", ctx do
+      {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
+      {:ok, notations} = ExGpgme.signature_notations(context)
+      assert length(notations) == 0
+
+      name = "foo"
+      value = "bar"
+      flags = [:human_readable, :critical]
+      :ok = ExGpgme.add_signature_notation(context, name, value, flags)
+
+      {:ok, notations} = ExGpgme.signature_notations(context)
+      [%{critical: true, human_readable: true, name: "foo", value: "bar"}] = notations
+    end
+
+    @tag :focus
+    test "clear signature notations", ctx do
+      {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
+      {:ok, notations} = ExGpgme.signature_notations(context)
+      assert length(notations) == 0
+
+      name = "foo"
+      value = "bar"
+      flags = [:human_readable, :critical]
+      :ok = ExGpgme.add_signature_notation(context, name, value, flags)
+
+      {:ok, notations} = ExGpgme.signature_notations(context)
+      assert length(notations) == 1
+
+      :ok = ExGpgme.clear_signature_notations(context)
+
+      {:ok, notations} = ExGpgme.signature_notations(context)
+      assert length(notations) == 0
+    end
+  end
+
   describe "Encryption/Decryption" do
     alias ExGpgme.Key
 
@@ -356,14 +398,12 @@ defmodule ExGpgme.Test do
       {:ok, cipher_text} = ExGpgme.encrypt(context, key, message)
 
       assert String.starts_with?(cipher_text, "-----BEGIN PGP MESSAGE-----")
-
       passphrase = Application.get_env(:ex_gpgme, :test_passphrase)
       {:ok, decrypted} = ExGpgme.decrypt(context, passphrase, cipher_text)
 
       assert message == decrypted
     end
 
-    @tag :focus
     test "should encrypt/decrypt data with symmetric key", ctx do
       {:ok, context} = ExGpgme.create(path: ctx[:gnupg_home])
 
